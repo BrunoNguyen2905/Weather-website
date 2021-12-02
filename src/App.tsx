@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
+import Geocode from "react-geocode";
+
 import "./App.css";
-import DailyCardDetail from "./components/DailyCardDetail";
+// import DailyCardDetail from "./components/DailyCardDetail";
 import DailyCardsSlider from "./components/DailyCardsSlider";
+import Navbar from "./components/Navbar";
 import WeatherCard from "./components/WeatherCard";
 import { getWeatherData } from "./http-common";
 
 function App() {
+  Geocode.setApiKey("AIzaSyAgprw4BwWwRtjWlIrvelEcDRgddoRceow");
+  Geocode.setLanguage("en");
+  Geocode.setRegion("fi");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>("");
+
   const [data, setData] = useState<any>();
   const [isFDegreeInTemp, setIsFDegreeInTemp] = useState(false);
   const [isFDegreeInFeelLike, setIsFDegreeInFeelLike] = useState(false);
@@ -13,6 +22,9 @@ function App() {
   const [isMilesInVisibility, setIsMilesInVisibility] = useState(false);
   const [isInchesInPressure, setIsInchesInPressure] = useState(false);
   const [isMmInPrecipitation, setIsMmInPrecipitation] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  // const [currentLatitude, setCurrentLatitude] = useState(0);
+  // const [currentLongtitude, setCurrentLongtitude] = useState(0);
 
   const isFTempHandle = (arg: boolean) => {
     setIsFDegreeInTemp(arg);
@@ -33,21 +45,56 @@ function App() {
     setIsMmInPrecipitation(arg);
   };
   const fetchWeatherData = async () => {
-    let res = await getWeatherData("vaasa");
-    setData(res.data);
+    try {
+      let res = await getWeatherData(searchValue ? searchValue : "vaasa");
+      setData(res.data);
+      setLoading(false);
+    } catch (error) {
+      setErrorMsg(String(error));
+      setLoading(false);
+    }
   };
+
+  const setSearchValueHandle = (arg: string) => {
+    setSearchValue(arg);
+    console.log("arggg", arg);
+  };
+  //
   useEffect(() => {
-    fetchWeatherData();
+      setLoading(true);
+      fetchWeatherData();
+    return () => {
+      setErrorMsg("");
+    };
   }, []);
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setLoading(true);
+      fetchWeatherData();
+    }, 0);
+    return () => {
+      setErrorMsg("");
+      clearTimeout(delayDebounceFn);
+    };
+    // fetchWeatherData();
+  }, [setSearchValue, searchValue]);
 
   let { location, current } = !!data && data;
   return (
     <div className="App">
-      {data ? (
+      {data && (
         <>
+          <Navbar
+            searchValueHandle={setSearchValueHandle}
+            isError={errorMsg.length !== 0}
+            errMsg="Wrong NAme"
+          />
           <WeatherCard
+          loading={loading}
             city={location.name}
-            country={location.region}
+            country={
+              location.region !== "" ? location.region : location.country
+            }
             weatherIcon={current.condition.icon}
             localTime={location.localtime}
             temp={isFDegreeInTemp === false ? current.temp_c : current.temp_f}
@@ -83,10 +130,11 @@ function App() {
             IsMilesVisbility={IsMilesVisbilityHandle}
             IsMmPrecipitation={IsMmPrecipitationHandle}
           />
+          <DailyCardsSlider countryToFecth={searchValue} />
         </>
-      ) : null}
-      <DailyCardsSlider />
-      <DailyCardDetail />
+      )}
+
+      {/* <DailyCardDetail /> */}
     </div>
   );
 }

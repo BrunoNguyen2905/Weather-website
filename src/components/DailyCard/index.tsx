@@ -7,7 +7,6 @@ const DailyCard = ({
   weatherCondition,
   weatherIcon
 }: DailyCardProps) => {
-  let timeOnly = time.split(' ')
   return (
     <DailyCardContainer>
       <p>{time}</p>

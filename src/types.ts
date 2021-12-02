@@ -19,9 +19,20 @@ export type WeatherCardProps = {
     IsInchesPressure: (arg: boolean) =>void;
     IsMilesVisbility: (arg: boolean) =>void;
     IsMmPrecipitation: (arg: boolean) =>void;
+    loading: boolean;
 
 }
 
+export type SearchValueHandleProps = {
+    searchValueHandle: (arg: string) => void;
+    disabled?: boolean;
+    isError: boolean;
+    errMsg: string;
+}
+
+export type DailyCardsSliderProps = {
+    countryToFecth: string;
+}
 export type DailyCardProps = {
     time: string;
     temp: number;
@@ -47,3 +58,11 @@ export type twoOptionsProps = {
     handleCLickOption: (arg: boolean) => void;
 
 }
+
+export type showSearchBarProp =  {
+    showSearchBar: boolean;
+ };
+
+ export type isScrolledProps = {
+    isScrolled: boolean;
+  };
