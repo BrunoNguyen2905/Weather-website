@@ -6,9 +6,10 @@ import {
   UpdatedTime,
   AdditionalInfo,
 } from "./index.style";
-import { WeatherCardProps } from "../../types";
+import { WeatherCardProps, WeatherCondition } from "../../types";
 import TwoOptions from "../TwoOptions";
 import Spinner from "../Spinner";
+import { useEffect, useState } from "react";
 const WeatherCard = ({
   city,
   country,
@@ -31,6 +32,7 @@ const WeatherCard = ({
   IsMilesVisbility,
   IsMmPrecipitation,
   loading,
+  uv
 }: WeatherCardProps) => {
   const TempOptionsHandle = (arg: boolean) => {
     isFTemp(arg);
@@ -56,8 +58,19 @@ const WeatherCard = ({
     IsMmPrecipitation(arg);
   };
 
+  const [backgroundImg, setBackgroundImg] = useState('')
+useEffect(() => {
+   WeatherCondition.map(each => {
+  if(String(weatherCondition) === String(each.text)) {
+    setBackgroundImg(each.imageUrl)
+  }
+  return ()  => setBackgroundImg('')
+})
+  
+}, [weatherCondition])
+
   return (
-    <WeatherCardContainer>
+    <WeatherCardContainer backgroundImg={backgroundImg ? backgroundImg : WeatherCondition[0].imageUrl}>
       {loading && <Spinner />}
       {!loading && (
         <>
@@ -129,7 +142,7 @@ const WeatherCard = ({
               />
             </span>
             <span>
-              <p>UV: 2</p>
+              <p>UV: {uv}</p>
             </span>
           </AdditionalInfo>
         </>

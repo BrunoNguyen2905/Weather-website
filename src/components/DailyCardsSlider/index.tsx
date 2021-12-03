@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { getWeatherForecast } from "../../http-common";
 import { DailyCardsSliderProps } from "../../types";
 import DailyCard from "../DailyCard";
+import Spinner from "../Spinner";
 import {
   DailyCardsSliderContainer,
   DailyCardsWrapper,
   DailyTitle,
 } from "./index.style";
 
-const DailyCardsSlider = ({ countryToFecth }: DailyCardsSliderProps) => {
+const DailyCardsSlider = ({ countryToFecth, loading }: DailyCardsSliderProps) => {
   const [todayForecastData, setTodayForecastData] = useState<any>();
 
   const fetchTodayData = async () => {
@@ -18,9 +19,7 @@ const DailyCardsSlider = ({ countryToFecth }: DailyCardsSliderProps) => {
         1
       );
       setTodayForecastData(res.data);
-      console.log("re1111s", res);
     } catch (error) {
-      console.log("errorrr", error);
     }
   };
   useEffect(() => {
@@ -33,7 +32,8 @@ const DailyCardsSlider = ({ countryToFecth }: DailyCardsSliderProps) => {
   return (
     <DailyCardsSliderContainer>
       <DailyTitle>Daily</DailyTitle>
-      <DailyCardsWrapper>
+      {loading && <Spinner />}
+      {!loading  && (<DailyCardsWrapper>
         {!!hour &&
           hour.map(
             (eachHour: {
@@ -50,7 +50,7 @@ const DailyCardsSlider = ({ countryToFecth }: DailyCardsSliderProps) => {
               />
             )
           )}
-      </DailyCardsWrapper>
+      </DailyCardsWrapper>)}
     </DailyCardsSliderContainer>
   );
 };

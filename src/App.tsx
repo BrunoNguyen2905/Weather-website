@@ -7,14 +7,15 @@ import DailyCardsSlider from "./components/DailyCardsSlider";
 import Navbar from "./components/Navbar";
 import WeatherCard from "./components/WeatherCard";
 import { getWeatherData } from "./http-common";
-
+import {WeatherCondition} from './types'
 function App() {
   Geocode.setApiKey("AIzaSyAgprw4BwWwRtjWlIrvelEcDRgddoRceow");
   Geocode.setLanguage("en");
   Geocode.setRegion("fi");
+  const city = localStorage.getItem('city') || "";
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
-
   const [data, setData] = useState<any>();
   const [isFDegreeInTemp, setIsFDegreeInTemp] = useState(false);
   const [isFDegreeInFeelLike, setIsFDegreeInFeelLike] = useState(false);
@@ -22,7 +23,7 @@ function App() {
   const [isMilesInVisibility, setIsMilesInVisibility] = useState(false);
   const [isInchesInPressure, setIsInchesInPressure] = useState(false);
   const [isMmInPrecipitation, setIsMmInPrecipitation] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(city);
   // const [currentLatitude, setCurrentLatitude] = useState(0);
   // const [currentLongtitude, setCurrentLongtitude] = useState(0);
 
@@ -47,6 +48,7 @@ function App() {
   const fetchWeatherData = async () => {
     try {
       let res = await getWeatherData(searchValue ? searchValue : "vaasa");
+      localStorage.setItem('city', searchValue ? searchValue : "vaasa")
       setData(res.data);
       setLoading(false);
     } catch (error) {
@@ -87,10 +89,16 @@ function App() {
           <Navbar
             searchValueHandle={setSearchValueHandle}
             isError={errorMsg.length !== 0}
-            errMsg="Wrong NAme"
+            errMsg="Invalid City. Please type again..."
           />
           <WeatherCard
           loading={loading}
+          // backgroundImageURL={WeatherCondition.map(each => {
+          //     if(String(current.condition.text) === each.text)  {
+          //       return String(each.imageUrl)
+          //     } 
+          //     return String(WeatherCondition[0].imageUrl) 
+          //   })}
             city={location.name}
             country={
               location.region !== "" ? location.region : location.country
@@ -123,6 +131,7 @@ function App() {
                 ? current.precip_mm
                 : current.precip_in
             }
+            uv={current.uv}
             isFTemp={isFTempHandle}
             isFFeelLike={isFFeelLikeHandle}
             IsKphWindSpeed={IsKphWindSpeedHandle}
@@ -130,7 +139,7 @@ function App() {
             IsMilesVisbility={IsMilesVisbilityHandle}
             IsMmPrecipitation={IsMmPrecipitationHandle}
           />
-          <DailyCardsSlider countryToFecth={searchValue} />
+          <DailyCardsSlider countryToFecth={searchValue} loading={loading}/>
         </>
       )}
 
